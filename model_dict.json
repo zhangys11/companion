@@ -158,5 +158,31 @@
                 "": 1
             }
         }
+    },
+    {
+        "name": "kei_basic_free",
+        "description": "",
+        "url": "/live2d-models/kei_basic_free/kei_basic_free.model3.json",
+        "kScale": 0.3,
+        "initialXshift": 0,
+        "initialYshift": 0,
+        "kXOffset": 1150,
+        "idleMotionGroupName": "Idle",
+                "emotionMap": {
+            "neutral": 0,
+            "anger": 2,
+            "disgust": 2,
+            "fear": 3,
+            "joy": 5,
+            "sadness": 3,
+            "amusement": 7,
+            "relief": 3,
+            "remorse": 3,
+            "caring": 5,
+            "confusion": 3,
+            "pride": 5,
+            "optimism": 1,
+            "excitement": 1
+        }    
     }
 ]
