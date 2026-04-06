@@ -31,8 +31,11 @@ class FasterWhisperConfig(I18nMixin):
     model_path: str = Field(..., alias="model_path")
     download_root: str = Field(..., alias="download_root")
     language: Optional[str] = Field(None, alias="language")
-    device: Literal["auto", "cpu", "cuda"] = Field("auto", alias="device")
-
+    device: str = Field("auto", alias="device")
+    compute_type: Literal["int8", "float16", "float32"] = Field(
+        "int8", alias="compute_type"
+    )
+    prompt: str | None = Field(None, alias="prompt")
     DESCRIPTIONS: ClassVar[Dict[str, Description]] = {
         "model_path": Description(
             en="Path to the Faster Whisper model", zh="Faster Whisper 模型路径"
@@ -41,12 +44,20 @@ class FasterWhisperConfig(I18nMixin):
             en="Root directory for downloading models", zh="模型下载根目录"
         ),
         "language": Description(
-            en="Language code (e.g., en, zh) or None for auto-detect",
+            en="Language code (e.g., en, zh) or empty string for auto-detect",
             zh="语言代码（如 en, zh）或留空以自动检测",
         ),
         "device": Description(
             en="Device to use for inference (cpu, cuda, or auto)",
-            zh="推理设备（cpu、cuda 或 auto）",
+            zh="推理设备（cpu, cuda, auto）",
+        ),
+        "compute_type": Description(
+            en="Compute type for the model (int8, float16, or float32)",
+            zh="模型的计算类型（int8、float16 或 float32）",
+        ),
+        "prompt": Description(
+            en="An initial prompt to provide context or guide the transcription. Language of the prompt should match the audio language.",
+            zh="用于提供上下文或引导转录的初始提示词。提示词应与音频语言匹配。",
         ),
     }
 
@@ -58,8 +69,8 @@ class WhisperCPPConfig(I18nMixin):
     model_dir: str = Field(..., alias="model_dir")
     print_realtime: bool = Field(False, alias="print_realtime")
     print_progress: bool = Field(False, alias="print_progress")
-    language: Literal["auto", "en", "zh"] = Field("auto", alias="language")
-
+    language: str = Field("auto", alias="language")
+    prompt: str | None = Field(None, alias="prompt")
     DESCRIPTIONS: ClassVar[Dict[str, Description]] = {
         "model_name": Description(
             en="Name of the Whisper model", zh="Whisper 模型名称"
@@ -74,7 +85,11 @@ class WhisperCPPConfig(I18nMixin):
             en="Print progress information", zh="打印进度信息"
         ),
         "language": Description(
-            en="Language code (en, zh, or auto)", zh="语言代码（en、zh 或 auto）"
+            en="Language code (e.g., auto, en, zh)", zh="语言代码（如 auto、en、zh）"
+        ),
+        "prompt": Description(
+            en="An initial prompt to provide context or guide the transcription. Language of the prompt should match the audio language.",
+            zh="用于提供上下文或引导转录的初始提示词。提示词应与音频语言匹配。",
         ),
     }
 
@@ -85,7 +100,7 @@ class WhisperConfig(I18nMixin):
     name: str = Field(..., alias="name")
     download_root: str = Field(..., alias="download_root")
     device: Literal["cpu", "cuda"] = Field("cpu", alias="device")
-
+    prompt: str | None = Field(None, alias="prompt")
     DESCRIPTIONS: ClassVar[Dict[str, Description]] = {
         "name": Description(en="Name of the Whisper model", zh="Whisper 模型名称"),
         "download_root": Description(
@@ -93,6 +108,10 @@ class WhisperConfig(I18nMixin):
         ),
         "device": Description(
             en="Device to use for inference (cpu or cuda)", zh="推理设备（cpu 或 cuda）"
+        ),
+        "prompt": Description(
+            en="An initial prompt to provide context or guide the transcription. Language of the prompt should match the audio language.",
+            zh="用于提供上下文或引导转录的初始提示词。提示词应与音频语言匹配。",
         ),
     }
 
@@ -108,7 +127,7 @@ class FunASRConfig(I18nMixin):
     ncpu: int = Field(4, alias="ncpu")
     hub: Literal["ms", "hf"] = Field("ms", alias="hub")
     use_itn: bool = Field(False, alias="use_itn")
-    language: Literal["auto", "zh", "en"] = Field("auto", alias="language")
+    language: str = Field("auto", alias="language")
 
     DESCRIPTIONS: ClassVar[Dict[str, Description]] = {
         "model_name": Description(en="Name of the FunASR model", zh="FunASR 模型名称"),
@@ -135,7 +154,7 @@ class FunASRConfig(I18nMixin):
             en="Enable inverse text normalization", zh="启用反向文本归一化"
         ),
         "language": Description(
-            en="Language code (zh, en, or auto)", zh="语言代码（zh、en 或 auto）"
+            en="Language code (e.g., auto, zh, en)", zh="语言代码（如 auto、zh、en）"
         ),
     }
 
@@ -144,9 +163,7 @@ class GroqWhisperASRConfig(I18nMixin):
     """Configuration for Groq Whisper ASR."""
 
     api_key: str = Field(..., alias="api_key")
-    model: Literal["whisper-large-v3-turbo", "whisper-large-v3"] = Field(
-        "whisper-large-v3-turbo", alias="model"
-    )
+    model: str = Field("whisper-large-v3-turbo", alias="model")
     lang: Optional[str] = Field(None, alias="lang")
 
     DESCRIPTIONS: ClassVar[Dict[str, Description]] = {
@@ -175,6 +192,7 @@ class SherpaOnnxASRConfig(I18nMixin):
         "whisper",
         "tdnn_ctc",
         "sense_voice",
+        "fire_red_asr",
     ] = Field(..., alias="model_type")
     encoder: Optional[str] = Field(None, alias="encoder")
     decoder: Optional[str] = Field(None, alias="decoder")
@@ -186,10 +204,12 @@ class SherpaOnnxASRConfig(I18nMixin):
     whisper_encoder: Optional[str] = Field(None, alias="whisper_encoder")
     whisper_decoder: Optional[str] = Field(None, alias="whisper_decoder")
     sense_voice: Optional[str] = Field(None, alias="sense_voice")
+    fire_red_asr_encoder: Optional[str] = Field(None, alias="fire_red_asr_encoder")
+    fire_red_asr_decoder: Optional[str] = Field(None, alias="fire_red_asr_decoder")
     tokens: str = Field(..., alias="tokens")
     num_threads: int = Field(4, alias="num_threads")
     use_itn: bool = Field(True, alias="use_itn")
-    provider: Literal["cpu", "cuda"] = Field("cpu", alias="provider")
+    provider: Literal["cpu", "cuda", "rocm"] = Field("cpu", alias="provider")
 
     DESCRIPTIONS: ClassVar[Dict[str, Description]] = {
         "model_type": Description(
@@ -221,6 +241,12 @@ class SherpaOnnxASRConfig(I18nMixin):
         ),
         "sense_voice": Description(
             en="Path to SenseVoice model", zh="SenseVoice 模型路径"
+        ),
+        "fire_red_asr_encoder": Description(
+            en="Path to FireredASR encoder model", zh="FireredASR 编码器模型路径"
+        ),
+        "fire_red_asr_decoder": Description(
+            en="Path to FireredASR decoder model", zh="FireredASR 解码器模型路径"
         ),
         "tokens": Description(en="Path to tokens file", zh="词元文件路径"),
         "num_threads": Description(en="Number of threads to use", zh="使用的线程数"),
@@ -271,6 +297,11 @@ class SherpaOnnxASRConfig(I18nMixin):
             if not all([values.sense_voice, values.tokens]):
                 raise ValueError(
                     "sense_voice and tokens must be provided for sense_voice model type"
+                )
+        elif model_type == "fire_red_asr":
+            if not all([values.fire_red_asr_encoder, values.fire_red_asr_decoder, values.tokens]):
+                raise ValueError(
+                    "fire_red_asr_encoder, fire_red_asr_decoder, and tokens must be provided for fire_red_asr model type"
                 )
 
         return values
